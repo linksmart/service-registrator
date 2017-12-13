@@ -12,10 +12,10 @@ import (
 	"strings"
 	"sync"
 
-	catalog "linksmart.eu/lc/core/catalog/service"
+	"code.linksmart.eu/sc/service-catalog/catalog"
 
-	_ "linksmart.eu/lc/sec/auth/cas/obtainer"
-	"linksmart.eu/lc/sec/auth/obtainer"
+	_ "code.linksmart.eu/com/go-sec/auth/keycloak/obtainer"
+	"code.linksmart.eu/com/go-sec/auth/obtainer"
 )
 
 var (
