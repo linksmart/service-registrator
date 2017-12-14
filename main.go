@@ -9,10 +9,9 @@ import (
 	"io/ioutil"
 	"os"
 	"os/signal"
-	"strings"
-	"sync"
 
 	"code.linksmart.eu/sc/service-catalog/catalog"
+	"code.linksmart.eu/sc/service-catalog/client"
 
 	_ "code.linksmart.eu/com/go-sec/auth/keycloak/obtainer"
 	"code.linksmart.eu/com/go-sec/auth/obtainer"
@@ -21,7 +20,7 @@ import (
 var (
 	confPath = flag.String("conf", "", "Path to the service configuration file")
 	endpoint = flag.String("endpoint", "", "Service Catalog endpoint")
-	discover = flag.Bool("discover", false, "Use DNS-SD service discovery to find Service Catalog endpoint")
+	//discover = flag.Bool("discover", false, "Use DNS-SD service discovery to find Service Catalog endpoint")
 	// Authentication configuration
 	authProvider    = flag.String("authProvider", "", "Authentication provider name")
 	authProviderURL = flag.String("authProviderURL", "", "Authentication provider url")
@@ -41,33 +40,26 @@ func main() {
 	// requiresAuth if authProvider is specified
 	var requiresAuth bool = (*authProvider != "")
 
-	if *endpoint == "" && !*discover {
-		logger.Println("ERROR: -endpoint was not provided and discover flag not set.")
-		flag.Usage()
-		os.Exit(1)
-	}
-
 	service, err := LoadConfigFromFile(*confPath)
 	if err != nil {
 		logger.Fatal("Unable to read service configuration from file: ", err)
 	}
 
-	// Launch the registration routine
-	var wg sync.WaitGroup
-	regCh := make(chan bool)
-
-	if !requiresAuth {
-		go catalog.RegisterServiceWithKeepalive(*endpoint, *discover, *service, regCh, &wg, nil)
-	} else {
+	var ticket *obtainer.Client
+	if requiresAuth {
 		// Setup ticket client
-		ticket, err := obtainer.NewClient(*authProvider, *authProviderURL, *authUser, *authPass, *serviceID)
+		ticket, err = obtainer.NewClient(*authProvider, *authProviderURL, *authUser, *authPass, *serviceID)
 		if err != nil {
 			logger.Fatal(err.Error())
 		}
-		// Register with a ticket obtainer client
-		go catalog.RegisterServiceWithKeepalive(*endpoint, *discover, *service, regCh, &wg, ticket)
+
 	}
-	wg.Add(1)
+
+	// Launch the registration routine
+	unregsiter, err := client.RegisterServiceAndKeepalive(*endpoint, *service, ticket)
+	if err != nil {
+		logger.Fatal(err.Error())
+	}
 
 	// Ctrl+C handling
 	handler := make(chan os.Signal, 1)
@@ -78,13 +70,11 @@ func main() {
 			break
 		}
 	}
-	// Signal shutdown to the registration routine
-	select {
-	// Notify if the routine hasn't returned already
-	case regCh <- true:
-	default:
+
+	err = unregsiter()
+	if err != nil {
+		logger.Fatal(err.Error())
 	}
-	wg.Wait()
 
 	logger.Println("Stopped")
 	os.Exit(0)
@@ -92,20 +82,17 @@ func main() {
 
 // Loads service registration from a config file
 func LoadConfigFromFile(confPath string) (*catalog.Service, error) {
-	if !strings.HasSuffix(confPath, ".json") {
-		return nil, fmt.Errorf("Config should be a .json file")
-	}
+
 	f, err := ioutil.ReadFile(confPath)
 	if err != nil {
 		return nil, err
 	}
 
-	config := &catalog.ServiceConfig{}
-	err = json.Unmarshal(f, config)
+	var service catalog.Service
+	err = json.Unmarshal(f, &service)
 	if err != nil {
-		return nil, fmt.Errorf("Error parsing config")
+		return nil, fmt.Errorf("error parsing json: %s", err)
 	}
 
-	service, err := config.GetService()
-	return service, err
+	return &service, err
 }
