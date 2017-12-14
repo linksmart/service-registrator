@@ -1,6 +1,15 @@
-### LinkSmart LocalConnect Core
-Code of the core components of LinkSmart LocalConnect
+### LinkSmart Service Registrar
+Service Registrar is a tool to register and update services in [Service Catalog](https://docs.linksmart.eu/SC). 
 
-See wiki on how to [get started](https://linksmart.eu/redmine/projects/linksmart-local-connect/wiki/Source_Code?parent=Wiki):
+Documentation is available in the [wiki](https://docs.linksmart.eu/display/SC/Service+Registrar).
 
 
+## Compile from source
+```
+git clone https://code.linksmart.eu/scm/sc/service-registrar.git src/code.linksmart.eu/sc/service-registrar
+export GOPATH=`pwd`
+go install code.linksmart.eu/sc/service-registrar
+```
+
+## Development
+The dependencies of this package are managed by [dep](https://github.com/golang/dep).

@@ -7,6 +7,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/signal"
 
@@ -42,7 +43,7 @@ func main() {
 
 	service, err := LoadConfigFromFile(*confPath)
 	if err != nil {
-		logger.Fatal("Unable to read service configuration from file: ", err)
+		log.Fatal("Unable to read service configuration from file: ", err)
 	}
 
 	var ticket *obtainer.Client
@@ -50,7 +51,7 @@ func main() {
 		// Setup ticket client
 		ticket, err = obtainer.NewClient(*authProvider, *authProviderURL, *authUser, *authPass, *serviceID)
 		if err != nil {
-			logger.Fatal(err.Error())
+			log.Fatal(err.Error())
 		}
 
 	}
@@ -58,7 +59,7 @@ func main() {
 	// Launch the registration routine
 	unregsiter, err := client.RegisterServiceAndKeepalive(*endpoint, *service, ticket)
 	if err != nil {
-		logger.Fatal(err.Error())
+		log.Fatal(err.Error())
 	}
 
 	// Ctrl+C handling
@@ -66,17 +67,17 @@ func main() {
 	signal.Notify(handler, os.Interrupt)
 	for sig := range handler {
 		if sig == os.Interrupt {
-			logger.Println("Caught interrupt signal...")
+			log.Println("Caught interrupt signal...")
 			break
 		}
 	}
 
 	err = unregsiter()
 	if err != nil {
-		logger.Fatal(err.Error())
+		log.Fatal(err.Error())
 	}
 
-	logger.Println("Stopped")
+	log.Println("Stopped")
 	os.Exit(0)
 }
 
