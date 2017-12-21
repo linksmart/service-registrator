@@ -1,4 +1,4 @@
-### LinkSmart Service Registrator
+# LinkSmart Service Registrator
 Service Registrator is a tool to register and update services in [Service Catalog](https://docs.linksmart.eu/SC). 
 
 Documentation is available in the [wiki](https://docs.linksmart.eu/display/SC/Service+Registrator).
