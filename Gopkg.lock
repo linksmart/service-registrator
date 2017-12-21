@@ -11,7 +11,7 @@
   branch = "master"
   name = "code.linksmart.eu/sc/service-catalog"
   packages = ["catalog","client","utils"]
-  revision = "0f5d540c35984d09f6e0f60f10c1ef765ae9f110"
+  revision = "e280932a2cc79f81bcb72ac3f1bb5d2d475c4d62"
 
 [[projects]]
   branch = "master"
