@@ -11,11 +11,11 @@ import (
 	"os"
 	"os/signal"
 
-	"code.linksmart.eu/sc/service-catalog/catalog"
-	"code.linksmart.eu/sc/service-catalog/client"
-
 	_ "code.linksmart.eu/com/go-sec/auth/keycloak/obtainer"
 	"code.linksmart.eu/com/go-sec/auth/obtainer"
+	"code.linksmart.eu/sc/service-catalog/catalog"
+	"code.linksmart.eu/sc/service-catalog/client"
+	"github.com/satori/go.uuid"
 )
 
 var (
@@ -30,13 +30,21 @@ var (
 	serviceID       = flag.String("serviceID", "", "Service ID at the auth. server")
 )
 
+const LINKSMART = `
+╦   ╦ ╔╗╔ ╦╔═  ╔═╗ ╔╦╗ ╔═╗ ╦═╗ ╔╦╗ R
+║   ║ ║║║ ╠╩╗  ╚═╗ ║║║ ╠═╣ ╠╦╝  ║
+╩═╝ ╩ ╝╚╝ ╩ ╩  ╚═╝ ╩ ╩ ╩ ╩ ╩╚═  ╩
+`
+
 func main() {
 	flag.Parse()
-
 	if *confPath == "" {
 		flag.Usage()
 		os.Exit(1)
 	}
+
+	fmt.Print(LINKSMART)
+	log.Printf("Starting Service Registrator")
 
 	// requiresAuth if authProvider is specified
 	var requiresAuth bool = (*authProvider != "")
@@ -44,6 +52,13 @@ func main() {
 	service, err := LoadConfigFromFile(*confPath)
 	if err != nil {
 		log.Fatal("Unable to read service configuration from file: ", err)
+	}
+
+	if service.ID == "" {
+		service.ID = uuid.NewV4().String()
+		log.Printf("ID not set, generated UUID: %s", service.ID)
+	} else {
+		log.Printf("Loaded service with ID: %s", service.ID)
 	}
 
 	var ticket *obtainer.Client
