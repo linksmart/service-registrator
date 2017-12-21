@@ -38,7 +38,7 @@ const LINKSMART = `
 
 func main() {
 	flag.Parse()
-	if *confPath == "" {
+	if *confPath == "" || *endpoint == "" {
 		flag.Usage()
 		os.Exit(1)
 	}
