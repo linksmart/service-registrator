@@ -1,0 +1,25 @@
+{
+  "id": "service_unique_id",
+  "name": "_servicename._tcp",
+  "description": "service description",
+  "meta": {},
+  "apis": {
+    "Data API" : "mqtt://test.mosquitto.org:1883",
+    "Registration API": "http://example.org"
+  },
+  "docs": [
+    {
+      "description": "REST API Specs",
+      "apis": ["Registration API"],
+      "type": "application/openapi+json;version=2.0",
+      "url": "http://link-to-openapi-specs.json"
+    },
+    {
+      "description": "LS XYZ Documentation",
+      "apis": ["Registration API", "Data API"],
+      "type": "text/html",
+      "url": "http://docs.linksmart.eu/XYZ"
+    }
+  ],
+  "ttl": 120
+}
