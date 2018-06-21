@@ -54,6 +54,10 @@ func main() {
 		log.Fatal("Unable to read service configuration from file: ", err)
 	}
 
+	if service.TTL == 0 {
+		log.Fatal("TTL must be larger than zero")
+	}
+
 	if service.ID == "" {
 		service.ID = uuid.NewV4().String()
 		log.Printf("ID not set, generated UUID: %s", service.ID)
@@ -72,28 +76,16 @@ func main() {
 	}
 
 	// Launch the registration routine
-	unregsiter, err := client.RegisterServiceAndKeepalive(*endpoint, *service, ticket)
+	_, _, err = client.RegisterServiceAndKeepalive(*endpoint, *service, ticket)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	// Ctrl+C handling
+	// Ctrl+C / Kill handling
 	handler := make(chan os.Signal, 1)
-	signal.Notify(handler, os.Interrupt)
-	for sig := range handler {
-		if sig == os.Interrupt {
-			log.Println("Caught interrupt signal...")
-			break
-		}
-	}
-
-	err = unregsiter()
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
-	log.Println("Stopped")
-	os.Exit(0)
+	signal.Notify(handler, os.Interrupt, os.Kill)
+	<-handler
+	log.Println("Shutting down...")
 }
 
 // Loads service registration from a config file
