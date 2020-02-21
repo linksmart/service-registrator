@@ -1,8 +1,19 @@
-FROM alpine
+FROM golang:1.13-alpine as builder
 
-COPY bin/service-registrator-linux-amd64 /home/
+COPY . /home
 
 WORKDIR /home
-RUN chmod +x service-registrator-linux-amd64
 
-ENTRYPOINT ["./service-registrator-linux-amd64"]
+RUN go build -v -mod=vendor
+
+###########
+FROM alpine
+
+RUN apk --no-cache add ca-certificates
+
+LABEL NAME="LinkSmart Service Registrator"
+
+WORKDIR /home
+COPY --from=builder /home/service-registrator .
+
+ENTRYPOINT ["./service-registrator"]
