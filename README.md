@@ -4,12 +4,17 @@ Service Registrator is a tool to register and update services in [Service Catalo
 Documentation is available in the [wiki](https://docs.linksmart.eu/display/SC/Service+Registrator).
 
 
-## Compile from source
+## Development
+The dependencies of this package are managed by [Go Modules](https://blog.golang.org/using-go-modules).
+
+To compile from source:
 ```
-git clone https://code.linksmart.eu/scm/sc/service-registrator.git src/code.linksmart.eu/sc/service-registrator
-export GOPATH=`pwd`
-go install code.linksmart.eu/sc/service-registrator
+git clone https://github.com/linksmart/service-registrator.git
+cd service-registrator
+go build -mod=vendor
 ```
 
-## Development
-The dependencies of this package are managed by [dep](https://github.com/golang/dep).
+## Contributing
+Contributions are welcome. 
+
+Please fork, make your changes, and submit a pull request. For major changes, please open an issue first and discuss it with the other authors.
